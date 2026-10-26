@@ -1,0 +1,36 @@
+{
+  "name": "linkedin-outreach-agent",
+  "version": "1.0.0",
+  "description": "AI-Powered LinkedIn Connection Intelligence, Shortlisting & 1-Click Personalized Messaging Hub",
+  "keywords": [
+    "linkedin",
+    "outreach",
+    "chrome-devtools-protocol",
+    "cdp",
+    "ai-agent",
+    "networking",
+    "recruiting",
+    "job-search",
+    "personalization"
+  ],
+  "author": "Nihal",
+  "license": "MIT",
+  "type": "module",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "sync": "node server/scripts/sync-connections.js",
+    "seed": "node server/db/seed.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.7.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
