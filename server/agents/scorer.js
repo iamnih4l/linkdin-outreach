@@ -7,6 +7,10 @@
  */
 
 export const ROLE_CATEGORIES = {
+  UAE_PROFESSOR: 'uae_professor',
+  UAE_STUDENT: 'uae_student',
+  PROFESSOR: 'professor',
+  STUDENT: 'student',
   RECRUITER: 'recruiter',
   HR: 'hr',
   FOUNDER: 'founder',
@@ -31,8 +35,30 @@ export const SENIORITY_LEVELS = {
 /**
  * Categorize role from title and headline
  */
-export function categorizeRole(title = '', headline = '') {
-  const text = `${title} ${headline}`.toLowerCase();
+export function categorizeRole(title = '', headline = '', company = '') {
+  const text = `${title} ${headline} ${company}`.toLowerCase();
+
+  const isUAE = /\b(uae|united arab emirates|dubai|abu dhabi|sharjah|mbzuai|khalifa university|mohamed bin zayed|nyu abu dhabi|nyuad|american university of sharjah|aus|heriot-watt|birmingham dubai|uowd|ajman|al ain|al-ain|uaeu|ku|adu|middlesex university dubai)\b/i.test(text);
+
+  const isProf = /\b(prof|professor|dean|provost|faculty|lecturer|postdoctoral|post doctoral|postdoc|chair|research scientist|lab director|academic success)\b/i.test(text);
+
+  const isStudent = /\b(student|scholar|master's|masters|msc|undergrad|graduate|candidate|student ambassador|alumni|alumnus|peer tutor)\b/i.test(text);
+
+  // UAE Academic Focus
+  if (isUAE && isProf) {
+    return ROLE_CATEGORIES.UAE_PROFESSOR;
+  }
+  if (isUAE && isStudent) {
+    return ROLE_CATEGORIES.UAE_STUDENT;
+  }
+
+  // General Academia
+  if (isProf) {
+    return ROLE_CATEGORIES.PROFESSOR;
+  }
+  if (isStudent) {
+    return ROLE_CATEGORIES.STUDENT;
+  }
 
   // Recruiters & HR
   if (/\b(recruiter|talent acquisition|technical recruiter|university recruiter|sourcer|headhunter)\b/.test(text)) {
@@ -111,8 +137,24 @@ export function scoreCandidate(profile) {
 
   const combinedText = `${name} ${title} ${company} ${industry} ${profile_summary} ${about} ${skills.join(' ')}`.toLowerCase();
 
-  // 1. Role alignment (+15 to +35)
-  if (role === ROLE_CATEGORIES.RECRUITER) {
+  // 1. Role alignment (+15 to +40)
+  if (role === ROLE_CATEGORIES.UAE_PROFESSOR) {
+    score += 40;
+    breakdown.push('UAE Academic Leader / Professor / Researcher (+40)');
+    recommendedObjective = 'uae_scholarship_research';
+  } else if (role === ROLE_CATEGORIES.UAE_STUDENT) {
+    score += 35;
+    breakdown.push('UAE University Student / Scholar / Ambassador (+35)');
+    recommendedObjective = 'uae_admissions_guidance';
+  } else if (role === ROLE_CATEGORIES.PROFESSOR) {
+    score += 25;
+    breakdown.push('Academic Professor / Researcher (+25)');
+    recommendedObjective = 'academic_research';
+  } else if (role === ROLE_CATEGORIES.STUDENT) {
+    score += 15;
+    breakdown.push('University Student / Peer (+15)');
+    recommendedObjective = 'peer_connection';
+  } else if (role === ROLE_CATEGORIES.RECRUITER) {
     if (/tech|technical|ai|engineering|software|university|campus/.test(title.toLowerCase())) {
       score += 35;
       breakdown.push('Direct technical/university recruiter (+35)');
@@ -193,7 +235,11 @@ export function scoreCandidate(profile) {
 
   // Synthesize relevance reason
   let relevanceReason = '';
-  if (role === ROLE_CATEGORIES.RECRUITER) {
+  if (role === ROLE_CATEGORIES.UAE_PROFESSOR) {
+    relevanceReason = `Academic faculty / researcher at ${company || 'UAE university'}. Ideal contact for Master's research opportunities, thesis advising, and fully-funded UAE scholarships (e.g. MBZUAI / Khalifa University fellowships).`;
+  } else if (role === ROLE_CATEGORIES.UAE_STUDENT) {
+    relevanceReason = `Student / Scholar at ${company || 'UAE university'}. Invaluable peer contact for Master's admissions guidance, application strategy, SOP insights, and firsthand campus experience.`;
+  } else if (role === ROLE_CATEGORIES.RECRUITER) {
     relevanceReason = `Key talent contact at ${company || 'their organization'}, ideal for exploring AI engineering internships and graduate technical roles.`;
   } else if (role === ROLE_CATEGORIES.FOUNDER) {
     relevanceReason = `Founder of ${company || 'innovative venture'} working in ${industry || 'technology'}. High-value connection for startup collaboration, founder insights, and early-stage opportunities.`;

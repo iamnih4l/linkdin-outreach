@@ -37,7 +37,13 @@ router.get('/', (req, res) => {
 
     // Filter by category
     if (category && category !== 'all') {
-      if (category === 'founder') {
+      if (category === 'uae_masters') {
+        query += ` AND (c.role_category IN ('uae_professor', 'uae_student') OR c.recommended_objective LIKE 'uae_%' OR c.company LIKE '%mbzuai%' OR c.company LIKE '%khalifa%' OR c.company LIKE '%uaeu%' OR c.company LIKE '%abu dhabi university%' OR c.company LIKE '%university of sharjah%' OR c.title LIKE '%mbzuai%' OR c.title LIKE '%khalifa university%' OR c.title LIKE '%uaeu%')`;
+      } else if (category === 'uae_professors') {
+        query += ` AND (c.role_category = 'uae_professor' OR c.recommended_objective = 'uae_scholarship_research' OR ((c.title LIKE '%prof%' OR c.title LIKE '%dean%' OR c.title LIKE '%postdoc%' OR c.title LIKE '%fellow%' OR c.title LIKE '%lecturer%' OR c.title LIKE '%faculty%' OR c.title LIKE '%research scientist%') AND (c.company LIKE '%uae%' OR c.company LIKE '%mbzuai%' OR c.company LIKE '%khalifa%' OR c.company LIKE '%sharjah%' OR c.company LIKE '%abu dhabi%' OR c.title LIKE '%uae%' OR c.title LIKE '%mbzuai%' OR c.title LIKE '%khalifa%')))`;
+      } else if (category === 'uae_students') {
+        query += ` AND (c.role_category = 'uae_student' OR (c.role_category != 'uae_professor' AND (c.recommended_objective = 'uae_admissions_guidance' OR ((c.title LIKE '%student%' OR c.title LIKE '%scholar%' OR c.title LIKE '%ambassador%' OR c.title LIKE '%msc%' OR c.title LIKE '%bachelor%' OR c.title LIKE '%bsc%') AND (c.company LIKE '%uae%' OR c.company LIKE '%mbzuai%' OR c.company LIKE '%khalifa%' OR c.company LIKE '%sharjah%' OR c.company LIKE '%abu dhabi%' OR c.title LIKE '%uae%' OR c.title LIKE '%mbzuai%' OR c.title LIKE '%khalifa%')))))`;
+      } else if (category === 'founder') {
         query += ` AND (c.role_category = 'founder' OR c.title LIKE '%founder%' OR c.title LIKE '%ceo%')`;
       } else if (category === 'hiring') {
         query += ` AND (c.role_category = 'recruiter' OR c.title LIKE '%hiring%' OR c.title LIKE '%talent%' OR c.title LIKE '%recruiter%' OR c.title LIKE '%recruiting%' OR c.title LIKE '%human resources%' OR c.title LIKE '%head of people%' OR c.score_explanation LIKE '%hiring%')`;
@@ -123,6 +129,9 @@ router.get('/', (req, res) => {
     // Compute category counts
     const counts = {
       all: db.prepare("SELECT count(*) as c FROM candidates WHERE is_demo = 0").get().c,
+      uae_masters: db.prepare("SELECT count(*) as c FROM candidates WHERE is_demo = 0 AND (role_category IN ('uae_professor', 'uae_student') OR recommended_objective LIKE 'uae_%' OR company LIKE '%mbzuai%' OR company LIKE '%khalifa%' OR company LIKE '%uaeu%' OR company LIKE '%abu dhabi university%' OR company LIKE '%university of sharjah%' OR title LIKE '%mbzuai%' OR title LIKE '%khalifa university%' OR title LIKE '%uaeu%')").get().c,
+      uae_professors: db.prepare("SELECT count(*) as c FROM candidates WHERE is_demo = 0 AND (role_category = 'uae_professor' OR recommended_objective = 'uae_scholarship_research' OR ((title LIKE '%prof%' OR title LIKE '%dean%' OR title LIKE '%postdoc%' OR title LIKE '%fellow%' OR title LIKE '%lecturer%' OR title LIKE '%faculty%' OR title LIKE '%research scientist%') AND (company LIKE '%uae%' OR company LIKE '%mbzuai%' OR company LIKE '%khalifa%' OR company LIKE '%sharjah%' OR company LIKE '%abu dhabi%' OR title LIKE '%uae%' OR title LIKE '%mbzuai%' OR title LIKE '%khalifa%')) )").get().c,
+      uae_students: db.prepare("SELECT count(*) as c FROM candidates WHERE is_demo = 0 AND (role_category = 'uae_student' OR (role_category != 'uae_professor' AND (recommended_objective = 'uae_admissions_guidance' OR ((title LIKE '%student%' OR title LIKE '%scholar%' OR title LIKE '%ambassador%' OR title LIKE '%msc%' OR title LIKE '%bachelor%' OR title LIKE '%bsc%') AND (company LIKE '%uae%' OR company LIKE '%mbzuai%' OR company LIKE '%khalifa%' OR company LIKE '%sharjah%' OR company LIKE '%abu dhabi%' OR title LIKE '%uae%' OR title LIKE '%mbzuai%' OR title LIKE '%khalifa%')))))").get().c,
       hiring: db.prepare("SELECT count(*) as c FROM candidates WHERE is_demo = 0 AND (role_category = 'recruiter' OR title LIKE '%hiring%' OR title LIKE '%talent%' OR title LIKE '%recruiter%' OR title LIKE '%recruiting%' OR title LIKE '%human resources%' OR title LIKE '%head of people%' OR score_explanation LIKE '%hiring%')").get().c,
       founder: db.prepare("SELECT count(*) as c FROM candidates WHERE is_demo = 0 AND (role_category = 'founder' OR title LIKE '%founder%' OR title LIKE '%ceo%')").get().c,
       recruiter: db.prepare("SELECT count(*) as c FROM candidates WHERE is_demo = 0 AND (role_category = 'recruiter' OR title LIKE '%recruiter%' OR title LIKE '%talent%')").get().c,

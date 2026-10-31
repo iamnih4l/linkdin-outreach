@@ -80,7 +80,57 @@ function generateLocalVariations(candidate, customObjective = null) {
 
   const variations = [];
 
-  if (objective === 'internship') {
+  if (objective === 'uae_scholarship_research') {
+    const salutation = (/dr|prof/i.test(candidate.title || '') || /dr|prof/i.test(fullName)) ? `Dr. ${name}` : name;
+
+    // 1. Direct & Concise
+    variations.push({
+      variation_name: 'Concise & Direct',
+      message_type: 'scholarship_research',
+      message_text: `Hi ${salutation}, hope you're having a productive week! I've been following the research at ${company} and wanted to reach out directly. I'm an AI engineering student and startup builder focusing on LLM agents and autonomous systems, and I'm actively preparing my application for Master's programs in the UAE. Are you currently considering prospective Master's students or research assistants for your group for upcoming cohorts? Would deeply value any brief guidance!`,
+      personalization_evidence: `Direct academic inquiry acknowledging ${salutation}'s faculty role at ${company}, introducing AI research interests, and asking about Master's research/scholarship availability.`,
+    });
+
+    // 2. Value-First & Research Insight
+    variations.push({
+      variation_name: 'Value-First & Project Insight',
+      message_type: 'scholarship_research',
+      message_text: `Hi ${salutation}, I really admire your academic leadership and technical research at ${company}. As an AI engineering student and startup co-founder, I have hands-on experience designing and deploying autonomous LLM agent pipelines, evaluation frameworks, and machine learning systems. I'm preparing to pursue my Master's in the UAE with a strong research and scholarship component (such as graduate research assistantships). I would welcome the opportunity to share my CV/portfolio or learn how my engineering background could support research initiatives in your lab.`,
+      personalization_evidence: `Bridged user's hands-on AI agent and systems engineering background with graduate research assistantship opportunities under ${salutation}'s mentorship at ${company}.`,
+    });
+
+    // 3. Conversational & Mentorship
+    variations.push({
+      variation_name: 'Conversational & Narrative',
+      message_type: 'scholarship_research',
+      message_text: `Dear ${salutation}, hope all is well! I came across your profile through your work at ${company}. Pursuing my Master's degree in Artificial Intelligence in the UAE is my primary academic goal, and I'm particularly keen to contribute to research under dedicated faculty mentorship with scholarship/fellowship backing. If you're open to it, I would be deeply grateful for a 10-minute introductory conversation or any pointers on how prospective graduate researchers can best position themselves at ${company}. Thank you so much for your time and guidance!`,
+      personalization_evidence: `Respectful, authentic graduate student inquiry focused on scholarship guidance and prospective research advising at ${company}.`,
+    });
+  } else if (objective === 'uae_admissions_guidance') {
+    // 1. Direct & Concise
+    variations.push({
+      variation_name: 'Concise & Direct',
+      message_type: 'admissions_guidance',
+      message_text: `Hi ${name}, hope you're having a great semester at ${company}! I saw your journey as a student/researcher there and wanted to connect. I'm an AI engineering student and builder preparing to apply for Master's programs in the UAE. Would you be open to sharing 1–2 quick tips on what you felt made your application stand out or how best to approach the admissions process? Really appreciate your insights!`,
+      personalization_evidence: `Peer-to-peer inquiry congratulating ${name} on their journey at ${company} and asking for targeted Master's application advice.`,
+    });
+
+    // 2. Value-First & Insight
+    variations.push({
+      variation_name: 'Value-First & Project Insight',
+      message_type: 'admissions_guidance',
+      message_text: `Hi ${name}, congratulations on your work and journey at ${company}! As an AI engineering student building LLM agents and autonomous workflows, joining a top Master's program in the UAE is my next big step. Since you've successfully navigated this path, I'd love to ask about your experience with admissions, scholarship criteria, and academic life. Happy to exchange notes on AI projects anytime if you have a brief moment!`,
+      personalization_evidence: `Offered reciprocal AI project collaboration while asking for firsthand guidance on UAE scholarship and admissions criteria.`,
+    });
+
+    // 3. Conversational & Story
+    variations.push({
+      variation_name: 'Conversational & Narrative',
+      message_type: 'admissions_guidance',
+      message_text: `Hey ${name}, hope you're having an awesome week! I noticed you're at ${company} and really admire what you've achieved. I'm actively putting together my applications for Master's programs in the UAE and would love to learn from your firsthand experience. If you ever have 5–10 minutes to spare, I'd be super grateful for your guidance on how to navigate the application and what the university values most in candidates. Wishing you all the best with your studies!`,
+      personalization_evidence: `Warm, authentic student-to-student connection requesting mentorship and insider admissions guidance.`,
+    });
+  } else if (objective === 'internship') {
     // 1. Direct & Concise
     variations.push({
       variation_name: 'Concise & Direct',

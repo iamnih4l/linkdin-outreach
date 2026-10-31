@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS candidates (
   company       TEXT,
   industry      TEXT,
   role_category TEXT CHECK(role_category IN (
+    'uae_professor','uae_student','professor','student',
     'recruiter','hr','founder','cto','engineering_leader',
     'ai_ml_lead','product_manager','hiring_manager','other'
   )),
@@ -33,7 +34,9 @@ CREATE TABLE IF NOT EXISTS messages (
   id                     INTEGER PRIMARY KEY AUTOINCREMENT,
   candidate_id           INTEGER NOT NULL REFERENCES candidates(id) ON DELETE CASCADE,
   message_type           TEXT CHECK(message_type IN (
-    'networking','internship','collaboration','technical'
+    'networking','internship','collaboration','technical',
+    'scholarship_research','admissions_guidance',
+    'uae_scholarship_research','uae_admissions_guidance'
   )),
   message_text           TEXT NOT NULL,
   personalization_evidence TEXT,

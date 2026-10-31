@@ -44,6 +44,9 @@ const elements = {
 // Category Pill Count Elements Map
 const countElementIds = {
   all: 'count-all',
+  uae_masters: 'count-uae_masters',
+  uae_professors: 'count-uae_professors',
+  uae_students: 'count-uae_students',
   hiring: 'count-hiring',
   founder: 'count-founder',
   recruiter: 'count-recruiter',
@@ -90,7 +93,15 @@ function getInitials(name = '') {
  * Get visual styling configuration based on role category
  */
 function getRoleBadgeConfig(roleCategory = '', title = '') {
+  const cat = (roleCategory || '').toLowerCase();
   const text = `${roleCategory} ${title}`.toLowerCase();
+
+  if (cat === 'uae_professor' || text.includes('uae professor')) {
+    return { label: '🏛️ UAE Professor / Faculty', badgeClass: 'badge-uae-prof', avatarClass: 'avatar-uae-prof' };
+  }
+  if (cat === 'uae_student' || text.includes('uae student')) {
+    return { label: '🎒 UAE Student / Scholar', badgeClass: 'badge-uae-student', avatarClass: 'avatar-uae-student' };
+  }
   if (text.includes('founder') || text.includes('ceo')) {
     return { label: 'Founder / CEO', badgeClass: 'badge-founder', avatarClass: 'avatar-founder' };
   }
@@ -226,10 +237,29 @@ function createConnectionCard(c) {
   const scoreClass = c.relevance_score === 100 ? 'score-100' : '';
   const isHiring = /\b(hiring|we're hiring|we are hiring|join our team|talent acquisition|recruiter|recruiting|head of people|talent partner)\b/i.test(`${c.title} ${c.company} ${c.score_explanation || ''}`);
 
+  const isUaeProf = c.role_category === 'uae_professor' || c.recommended_objective === 'uae_scholarship_research';
+  const isUaeStudent = c.role_category === 'uae_student' || c.recommended_objective === 'uae_admissions_guidance';
+  const isUaeNetwork = isUaeProf || isUaeStudent || /\b(mbzuai|khalifa|uaeu|abu dhabi|sharjah|dubai|united arab emirates|uae)\b/i.test(`${c.title} ${c.company} ${c.score_explanation || ''}`);
+
   // Message draft variants
   const conciseDraft = c.messages?.concise || '';
   const valueFirstDraft = c.messages?.value_first || '';
   const conversationalDraft = c.messages?.conversational || '';
+
+  // Contextual tab titles
+  let tab1Label = '⚡ Concise (&lt;75w)';
+  let tab2Label = '💡 Value-First';
+  let tab3Label = '🤝 Conversational';
+
+  if (isUaeProf) {
+    tab1Label = '⚡ Direct Scholarship';
+    tab2Label = '🔬 Lab & Research Fit';
+    tab3Label = '🤝 Academic Journey';
+  } else if (isUaeStudent) {
+    tab1Label = '⚡ Guidance Query';
+    tab2Label = '💡 Admissions Strategy';
+    tab3Label = '🤝 Peer Journey';
+  }
 
   card.innerHTML = `
     <!-- Header: Avatar, Name, LinkedIn Link, Star -->
@@ -263,9 +293,12 @@ function createConnectionCard(c) {
     <!-- Badges Row: Role, Company, Score -->
     <div class="card-badges">
       ${isHiring ? `<span class="badge-hiring-indicator" title="Actively hiring or key talent partner">🔥 Actively Hiring</span>` : ''}
+      ${isUaeNetwork ? `<span class="badge-uae-flag" title="UAE Higher Education Network">🇦🇪 UAE</span>` : ''}
       <span class="badge-role ${roleConfig.badgeClass}">
         ${roleConfig.label}
       </span>
+      ${isUaeProf ? `<span class="badge-objective badge-objective-scholarship" title="Primary Goal: Fully-funded Scholarships, Graduate Research Assistantships, and Lab Positions">🏆 Scholarships & Lab</span>` : ''}
+      ${isUaeStudent ? `<span class="badge-objective badge-objective-guidance" title="Primary Goal: Student Guidance on Admissions, Application Process, and Portfolio Review">🧭 Admissions Guidance</span>` : ''}
       ${c.company ? `<span class="badge-company">${c.company}</span>` : ''}
       <span class="badge-score ${scoreClass}" title="${c.score_explanation || 'Relevance Score'}">
         ⚡ ${c.relevance_score}/100
@@ -283,9 +316,9 @@ function createConnectionCard(c) {
     <!-- Message Studio -->
     <div class="card-msg-studio">
       <div class="msg-tabs">
-        <button class="msg-tab active" data-tab="concise">⚡ Concise (&lt;75w)</button>
-        <button class="msg-tab" data-tab="value_first">💡 Value-First</button>
-        <button class="msg-tab" data-tab="conversational">🤝 Conversational</button>
+        <button class="msg-tab active" data-tab="concise">${tab1Label}</button>
+        <button class="msg-tab" data-tab="value_first">${tab2Label}</button>
+        <button class="msg-tab" data-tab="conversational">${tab3Label}</button>
       </div>
 
       <div class="msg-textarea-wrapper">

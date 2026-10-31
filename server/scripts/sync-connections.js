@@ -86,6 +86,32 @@ function refineCompany(title = '', rawCompany = '') {
 function categorize(title = '', company = '') {
   const text = `${title} ${company}`.toLowerCase();
 
+  const isUAE = /\b(uae|united arab emirates|dubai|abu dhabi|sharjah|mbzuai|khalifa university|mohamed bin zayed|nyu abu dhabi|nyuad|american university of sharjah|aus|heriot-watt|birmingham dubai|uowd|ajman|al ain|al-ain|uaeu|ku|adu|middlesex university dubai)\b/i.test(text);
+
+  const isProf = /\b(prof|professor|dean|provost|faculty|lecturer|postdoctoral|post doctoral|postdoc|chair|research scientist|lab director|academic success)\b/i.test(text);
+
+  const isStudent = /\b(student|scholar|master's|masters|msc|undergrad|graduate|candidate|student ambassador|alumni|alumnus|peer tutor)\b/i.test(text);
+
+  // UAE Academic Focus: Professors & Deans
+  if (isUAE && isProf) {
+    return {
+      category: 'UAE Professor / Academic Faculty',
+      tier: 'Tier 1 (UAE Masters & Scholarships)',
+      priorityWeight: 40,
+      objective: 'uae_scholarship_research'
+    };
+  }
+
+  // UAE Academic Focus: Students, Ambassadors & Scholars
+  if (isUAE && isStudent) {
+    return {
+      category: 'UAE Student / Scholar / Alumni',
+      tier: 'Tier 1 (UAE Admissions Guidance)',
+      priorityWeight: 35,
+      objective: 'uae_admissions_guidance'
+    };
+  }
+
   if (/\b(cto|chief technology officer|chief technical officer|chief architect)\b/.test(text)) {
     return {
       category: 'CTO / Technical Visionary',
@@ -207,7 +233,11 @@ function scoreAndExplain(person, catInfo) {
 
   let relevanceReason = '';
   const comp = person.company || 'their organization';
-  if (catInfo.category.includes('Founder') || catInfo.category.includes('CEO')) {
+  if (catInfo.category.includes('UAE Professor')) {
+    relevanceReason = `Academic Leader / Professor at ${comp}. Prime faculty contact for Master's research opportunities, thesis advising, and fully-funded UAE scholarships (e.g. MBZUAI Full Fellowship / Khalifa University Research Assistantships).`;
+  } else if (catInfo.category.includes('UAE Student')) {
+    relevanceReason = `Student / Scholar at ${comp}. Invaluable peer contact for Master's admissions guidance, application strategy, SOP insights, and firsthand campus experience.`;
+  } else if (catInfo.category.includes('Founder') || catInfo.category.includes('CEO')) {
     relevanceReason = `Founder/CEO at ${comp}. Top-tier connection for startup building insights, strategic partnerships, and executive vision.`;
   } else if (catInfo.category.includes('CTO')) {
     relevanceReason = `CTO/Technical Leader at ${comp}. Key decision-maker for engineering architecture, AI tech stacks, and technical hiring.`;
@@ -239,7 +269,22 @@ function craftMessages(person, catInfo) {
   let valueFirst = '';
   let conversational = '';
 
-  if (roleCat.includes('Founder') || roleCat.includes('CEO')) {
+  let academicInstitution = company;
+  const uniMatch = `${person.title} ${person.company || ''}`.match(/\b(MBZUAI|Khalifa University|NYU Abu Dhabi|UAEU|Abu Dhabi University|University of Sharjah|American University of Sharjah|Heriot-Watt|University of Birmingham Dubai|Middlesex University Dubai|University of Wollongong in Dubai|ADU)\b/i);
+  if (uniMatch) {
+    academicInstitution = uniMatch[1].toUpperCase() === 'ADU' ? 'Abu Dhabi University' : uniMatch[1];
+  }
+
+  if (roleCat.includes('UAE Professor')) {
+    const salutation = (/dr|prof/i.test(person.title || '') || /dr|prof/i.test(person.name || '')) ? `Dr. ${firstName}` : firstName;
+    concise = `Hi ${salutation}, hope you're having a productive week! I've been following the research at ${academicInstitution} and wanted to reach out directly. I'm an AI engineering student and startup builder focusing on LLM agents and autonomous systems, and I'm actively preparing my application for Master's programs in the UAE. Are you currently considering prospective Master's students or research assistants for your group for upcoming cohorts? Would deeply value any brief guidance!`;
+    valueFirst = `Hi ${salutation}, I really admire your academic leadership and technical research at ${academicInstitution}. As an AI engineering student and startup co-founder, I have hands-on experience designing and deploying autonomous LLM agent pipelines, evaluation frameworks, and machine learning systems. I'm preparing to pursue my Master's in the UAE with a strong research and scholarship component (such as graduate research assistantships). I would welcome the opportunity to share my CV/portfolio or learn how my engineering background could support research initiatives in your lab.`;
+    conversational = `Dear ${salutation}, hope all is well! I came across your profile through your work at ${academicInstitution}. Pursuing my Master's degree in Artificial Intelligence in the UAE is my primary academic goal, and I'm particularly keen to contribute to research under dedicated faculty mentorship with scholarship/fellowship backing. If you're open to it, I would be deeply grateful for a 10-minute introductory conversation or any pointers on how prospective graduate researchers can best position themselves at ${academicInstitution}. Thank you so much for your time and guidance!`;
+  } else if (roleCat.includes('UAE Student')) {
+    concise = `Hi ${firstName}, hope you're having a great semester at ${academicInstitution}! I saw your journey as a student/researcher there and wanted to connect. I'm an AI engineering student and builder preparing to apply for Master's programs in the UAE. Would you be open to sharing 1–2 quick tips on what you felt made your application stand out or how best to approach the admissions process? Really appreciate your insights!`;
+    valueFirst = `Hi ${firstName}, congratulations on your work and journey at ${academicInstitution}! As an AI engineering student building LLM agents and autonomous workflows, joining a top Master's program in the UAE is my next big step. Since you've successfully navigated this path, I'd love to ask about your experience with admissions, scholarship criteria, and academic life. Happy to exchange notes on AI projects anytime if you have a brief moment!`;
+    conversational = `Hey ${firstName}, hope you're having an awesome week! I noticed you're at ${academicInstitution} and really admire what you've achieved. I'm actively putting together my applications for Master's programs in the UAE and would love to learn from your firsthand experience. If you ever have 5–10 minutes to spare, I'd be super grateful for your guidance on how to navigate the application and what the university values most in candidates. Wishing you all the best with your studies!`;
+  } else if (roleCat.includes('Founder') || roleCat.includes('CEO')) {
     concise = `Hi ${firstName}, hope you're having a great week! As a fellow startup co-founder and ${SENDER.role.toLowerCase()} building LLM agents, I've been following your journey with ${company}. Would love to connect and follow your milestones as you scale. Cheering on ${company}!`;
     valueFirst = `Hi ${firstName}, congratulations on the momentum with ${company}! As an AI engineer and startup co-founder, I've been deep in the weeds building autonomous agent workflows and LLM pipelines. If you ever have 10 minutes, I'd love to exchange notes on early-stage building, tech stacks, and navigating AI product development.`;
     conversational = `Hey ${firstName}, great to connect with fellow founders in the ecosystem. Your work leading ${company} is genuinely inspiring as I balance my studies with co-founding an early-stage startup. Would love to stay in touch and exchange notes whenever you have a breather!`;
