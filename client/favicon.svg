@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0891b2" />
+      <stop offset="45%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+
+    <!-- Glowing Accent Gradient -->
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee" />
+      <stop offset="100%" stop-color="#818cf8" />
+    </linearGradient>
+
+    <!-- Subtle Drop Shadow Filter -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#000" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Squircle Base Canvas -->
+  <rect width="64" height="64" rx="16" fill="url(#bgGrad)" />
+
+  <!-- Subtle Glass Inner Border -->
+  <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="15.25" fill="none" stroke="rgba(255, 255, 255, 0.22)" stroke-width="1.5" />
+
+  <!-- Inner Outreach Node Pulse (Top Right Spark) -->
+  <circle cx="50" cy="14" r="3.5" fill="#38bdf8" opacity="0.9" filter="url(#shadow)" />
+  <circle cx="50" cy="14" r="6" fill="none" stroke="#38bdf8" stroke-width="1" opacity="0.4" />
+
+  <!-- Main Graphic: Bold Stylized 'in' with Integrated AI Outreach Beam -->
+  <g fill="#ffffff" filter="url(#shadow)">
+    <!-- Dot of 'i' -->
+    <circle cx="18" cy="18" r="4.2" fill="url(#glowGrad)" />
+
+    <!-- Stem of 'i' -->
+    <rect x="14" y="25" width="8" height="23" rx="3.5" />
+
+    <!-- 'n' shape: Stem and Arch with precise geometry -->
+    <path d="M 27 25 
+             L 34.5 25 
+             L 34.5 29.2 
+             C 36.8 26.2, 40.2 24.5, 44.8 24.5 
+             C 50.8 24.5, 54 28.5, 54 35.2 
+             L 54 48 
+             L 46.5 48 
+             L 46.5 36.5 
+             C 46.5 32.8, 44.8 30.8, 41.5 30.8 
+             C 38 30.8, 35 33.2, 35 37.8 
+             L 35 48 
+             L 27 48 
+             Z" />
+  </g>
+</svg>
