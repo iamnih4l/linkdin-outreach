@@ -52,39 +52,43 @@ export function loadRealConnections() {
     VALUES (?, ?, ?, ?, 'draft')
   `);
 
-  for (const p of list) {
-    let roleCat = 'other';
-    if (p.role_category.includes('Recruiter')) roleCat = 'recruiter';
-    else if (p.role_category.includes('Founder') || p.role_category.includes('CEO')) roleCat = 'founder';
-    else if (p.role_category.includes('CTO')) roleCat = 'cto';
-    else if (p.role_category.includes('AI / ML')) roleCat = 'ai_ml_lead';
-    else if (p.role_category.includes('Product')) roleCat = 'product_manager';
-    else if (p.role_category.includes('Engineering Leader')) roleCat = 'engineering_leader';
+  const syncAll = db.transaction((items) => {
+    for (const p of items) {
+      let roleCat = 'other';
+      if (p.role_category.includes('Recruiter')) roleCat = 'recruiter';
+      else if (p.role_category.includes('Founder') || p.role_category.includes('CEO')) roleCat = 'founder';
+      else if (p.role_category.includes('CTO')) roleCat = 'cto';
+      else if (p.role_category.includes('AI / ML')) roleCat = 'ai_ml_lead';
+      else if (p.role_category.includes('Product')) roleCat = 'product_manager';
+      else if (p.role_category.includes('Engineering Leader')) roleCat = 'engineering_leader';
 
-    try {
-      const res = insertCandidate.run({
-        linkedin_url: p.linkedin_url,
-        name: p.name,
-        title: p.title,
-        company: p.company || '',
-        role_category: roleCat,
-        relevance_reason: p.relevance_reason,
-        recommended_objective: p.recommended_objective,
-        relevance_score: p.relevance_score,
-        score_explanation: p.score_explanation
-      });
+      try {
+        const res = insertCandidate.run({
+          linkedin_url: p.linkedin_url,
+          name: p.name,
+          title: p.title,
+          company: p.company || '',
+          role_category: roleCat,
+          relevance_reason: p.relevance_reason,
+          recommended_objective: p.recommended_objective,
+          relevance_score: p.relevance_score,
+          score_explanation: p.score_explanation
+        });
 
-      const cid = res.lastInsertRowid || db.prepare('SELECT id FROM candidates WHERE linkedin_url = ?').get(p.linkedin_url)?.id;
-      if (cid) {
-        db.prepare('DELETE FROM messages WHERE candidate_id = ?').run(cid);
-        insertMsg.run(cid, 'internship', p.message_draft_concise, 'Concise & Direct');
-        insertMsg.run(cid, 'technical', p.message_draft_value_first, 'Value-First & Project Insight');
-        insertMsg.run(cid, 'networking', p.message_draft_conversational, 'Conversational & Narrative');
+        const cid = res.lastInsertRowid || db.prepare('SELECT id FROM candidates WHERE linkedin_url = ?').get(p.linkedin_url)?.id;
+        if (cid) {
+          db.prepare('DELETE FROM messages WHERE candidate_id = ?').run(cid);
+          insertMsg.run(cid, 'internship', p.message_draft_concise, 'Concise & Direct');
+          insertMsg.run(cid, 'technical', p.message_draft_value_first, 'Value-First & Project Insight');
+          insertMsg.run(cid, 'networking', p.message_draft_conversational, 'Conversational & Narrative');
+        }
+      } catch (e) {
+        // skip individual row errors
       }
-    } catch (e) {
-      // skip individual row errors
     }
-  }
+  });
+
+  syncAll(list);
 
   const count = db.prepare('SELECT count(*) as c FROM candidates').get().c;
   console.log(`[clean_data] Database clean and synced! Total real connections in DB: ${count}`);

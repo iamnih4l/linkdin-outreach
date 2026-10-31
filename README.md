@@ -85,8 +85,8 @@ flowchart TD
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/linkedin-outreach-agent.git
-cd linkedin-outreach-agent
+git clone https://github.com/iamnih4l/linkdin-outreach.git
+cd linkdin-outreach
 npm install
 ```
 

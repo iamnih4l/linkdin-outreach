@@ -15,8 +15,8 @@ By participating in this project, you agree to abide by our [Code of Conduct](CO
 1. **Fork the repository** on GitHub.
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/linkedin-outreach-agent.git
-   cd linkedin-outreach-agent
+   git clone https://github.com/YOUR_USERNAME/linkdin-outreach.git
+   cd linkdin-outreach
    ```
 3. **Install dependencies**:
    ```bash
